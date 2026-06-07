@@ -1,0 +1,81 @@
+plugins {
+    id "com.factory.spring-application-conventions"
+	id "com.factory.maven-consumer-conventions"
+}
+
+version = '1.0.0'
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+dependencies {
+	// common modules
+	implementation "com.factory.common:contract:1.0.1"
+	implementation "com.factory.common:outbox-jpa:1.0.1"
+	implementation "com.factory.common:inbox-jpa:1.0.1"
+
+	// Spring Web
+	implementation "org.springframework.boot:spring-boot-starter-web"
+	implementation "org.springframework.boot:spring-boot-starter-webflux"
+
+	// Spring Data JPA
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+
+	// Spring Boot Actuator
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+
+    // MariaDB 
+    runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
+
+	// Kafka
+	implementation 'org.springframework.kafka:spring-kafka'
+
+	// AWS SDK v2 - S3
+	implementation platform('software.amazon.awssdk:bom:2.25.60')
+	implementation 'software.amazon.awssdk:s3'
+
+	// Parquet reading (LocalInputFile - Hadoop FS 미사용)
+	implementation 'org.apache.parquet:parquet-hadoop:1.14.1'
+	implementation ('org.apache.hadoop:hadoop-common:3.3.6') {
+		exclude group: 'log4j', module: 'log4j'
+		exclude group: 'org.slf4j', module: 'slf4j-log4j12'
+		exclude group: 'org.slf4j', module: 'slf4j-reload4j'
+		exclude group: 'ch.qos.reload4j', module: 'reload4j'
+		exclude group: 'com.sun.xml.bind', module: 'jaxb-core'
+		exclude group: 'com.sun.xml.bind', module: 'jaxb-impl'
+	}
+	implementation ('org.apache.hadoop:hadoop-mapreduce-client-core:3.3.6') {
+		exclude group: 'log4j', module: 'log4j'
+		exclude group: 'org.slf4j', module: 'slf4j-log4j12'
+		exclude group: 'org.slf4j', module: 'slf4j-reload4j'
+		exclude group: 'ch.qos.reload4j', module: 'reload4j'
+		exclude group: 'com.sun.xml.bind', module: 'jaxb-core'
+		exclude group: 'com.sun.xml.bind', module: 'jaxb-impl'
+	}
+	// Snappy 압축 지원
+	implementation 'org.xerial.snappy:snappy-java:1.1.10.5'
+
+	// Lombok
+	annotationProcessor 'org.projectlombok:lombok'
+	compileOnly 'org.projectlombok:lombok'
+
+	// Dotenv
+	implementation 'me.paulschwarz:spring-dotenv:4.0.0'
+
+	// Configuration metadata (IDE property validation)
+	annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+
+	// Test
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+tasks.named('test', Test) {
+    useJUnitPlatform()
+}
+
+tasks.named('bootJar') {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}

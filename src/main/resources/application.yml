@@ -1,0 +1,43 @@
+server:
+  port: 8087
+
+cloud:
+  aws:
+    s3:
+      bucket: ${S3_BUCKET_NAME}
+    region: ap-northeast-2
+    credentials:
+      access-key: ${AWS_ACCESS_KEY_ID:}
+      secret-key: ${AWS_SECRET_ACCESS_KEY:}
+
+spring:
+  application:
+    name: analysis-service
+
+  profiles:
+    active: dev
+
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      acks: all
+      retries: 3
+      properties:
+        enable.idempotence: true
+        spring.json.add.type.headers: false
+
+    consumer:
+      group-id: analysis-service
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "*"
+
+services:
+  management-service:
+    url: ${MANAGEMENT_SERVICE_URL:http://localhost:8086}
+  anomaly-service:
+    url: ${ANOMALY_SERVICE_URL:http://localhost:8085}
