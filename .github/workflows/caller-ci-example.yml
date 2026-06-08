@@ -1,0 +1,42 @@
+name: CI/CD
+
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+    branches: [main, dev]
+
+jobs:
+  build:
+    uses: 404-Factory/.github/.github/workflows/reusable-build.yml@dev
+    permissions:
+      contents: read
+      packages: write
+    with:
+      use-ecr: true
+      aws-region: ap-northeast-2
+      ecr-registry: ${{ vars.ECR_REGISTRY }}
+      java-version: "17"
+      pre-build-command: "./gradlew build -x test --no-daemon"
+    secrets:
+      aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      gpr-token: ${{ secrets.GPR_TOKEN }}
+
+  deploy:
+    needs: build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    uses: 404-Factory/.github/.github/workflows/reusable-deploy.yml@dev
+    permissions:
+      contents: read
+    with:
+      eks-cluster-name: sigma-eks-cluster
+      deploy-environment: production
+      aws-region: ap-northeast-2
+      namespace: analysis
+      image: ${{ needs.build.outputs.image }}
+      image-tag: ${{ needs.build.outputs.tag }}
+      manifest-dir: k8s
+    secrets:
+      aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
