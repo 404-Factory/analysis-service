@@ -1,0 +1,43 @@
+server:
+  port: 0
+
+cloud:
+  aws:
+    s3:
+      bucket: test-bucket
+    region: ap-northeast-2
+    credentials:
+      access-key: ""
+      secret-key: ""
+
+spring:
+  application:
+    name: analysis-service
+
+  datasource:
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:mem:analysisdb;MODE=MariaDB;DB_CLOSE_DELAY=-1;NON_KEYWORDS=VALUE
+    username: sa
+    password: ""
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration
+      - org.springframework.kafka.annotation.EnableKafkaBootstrapConfiguration
+      # 요약 기능과 무관하며, kafka 공통모듈(EventPublisher) 미의존으로 컨텍스트 로딩을 깨는 오토컨피그 제외
+      - com.factory.common.outbox.jpa.autoconfigure.OutboxJpaAutoConfiguration
+      - com.factory.common.inbox.jpa.autoconfigure.InboxJpaAutoConfiguration
+
+services:
+  management-service:
+    url: http://localhost:18086
+  anomaly-service:
+    url: http://localhost:18085
