@@ -1,6 +1,9 @@
 name: CI/CD
 
 on:
+  # Manual trigger: needed to (re)deploy manifest-only changes, since k8s/** is
+  # path-ignored below and therefore never auto-triggers build+deploy.
+  workflow_dispatch:
   push:
     branches: [main, dev]
     paths-ignore:
@@ -32,7 +35,7 @@ jobs:
 
   deploy:
     needs: build
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main'
     uses: 404-Factory/.github/.github/workflows/reusable-deploy.yml@dev
     permissions:
       contents: read

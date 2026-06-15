@@ -1,10 +1,19 @@
 name: CI/CD Test
 
 on:
+  # Manual trigger: needed to (re)deploy manifest-only changes, since k8s/** is
+  # path-ignored below and therefore never auto-triggers build+deploy.
+  workflow_dispatch:
   push:
     branches: [feat/ci]
+    paths-ignore:
+      - 'k8s/**'
+      - '**.md'
   pull_request:
     branches: [feat/ci]
+    paths-ignore:
+      - 'k8s/**'
+      - '**.md'
 
 jobs:
   build:
@@ -27,7 +36,7 @@ jobs:
 
   deploy:
     needs: build
-    if: github.event_name == 'push' && github.ref == 'refs/heads/feat/ci'
+    if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/feat/ci'
     uses: 404-Factory/.github/.github/workflows/reusable-deploy.yml@dev
     permissions:
       contents: read
