@@ -16,6 +16,7 @@ jobs:
       use-ecr: true
       aws-region: ap-northeast-2
       ecr-registry: ${{ vars.ECR_REGISTRY }}
+      platforms: ${{ vars.PLATFORM }}   # 레포/조직 Variables에서 관리 (예: linux/arm64)
       java-version: "17"
       pre-build-command: "./gradlew build -x test --no-daemon"
       push-on-ref: refs/heads/feat/ci
