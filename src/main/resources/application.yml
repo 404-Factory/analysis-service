@@ -17,6 +17,13 @@ spring:
   profiles:
     active: dev
 
+  jpa:
+    properties:
+      hibernate:
+        # 캐시(LocalDate) 저장/조회 시 JDBC 날짜 타임존 오프바이원 방지 (컨테이너 TZ 무관하게 UTC 고정)
+        jdbc:
+          time_zone: UTC
+
   kafka:
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
     producer:
