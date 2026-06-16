@@ -12,9 +12,10 @@ repositories {
 
 dependencies {
 	// common modules
-	implementation "com.factory.common:contract:1.0.7"
-	implementation "com.factory.common:outbox-jpa:1.0.7"
-	implementation "com.factory.common:inbox-jpa:1.0.7"
+	implementation "com.factory.common:contract:1.1.0"
+	implementation "com.factory.common:kafka:1.1.0"
+	implementation "com.factory.common:outbox-jpa:1.1.0"
+	implementation "com.factory.common:inbox-jpa:1.1.0"
 
 	// Spring Web
 	implementation "org.springframework.boot:spring-boot-starter-web"
