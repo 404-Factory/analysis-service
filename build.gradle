@@ -36,6 +36,8 @@ dependencies {
 	// AWS SDK v2 - S3
 	implementation platform('software.amazon.awssdk:bom:2.25.60')
 	implementation 'software.amazon.awssdk:s3'
+	// IRSA(WebIdentityToken)로 자격증명 받으려면 STS 모듈이 클래스패스에 필요
+	implementation 'software.amazon.awssdk:sts'
 
 	// Parquet reading (LocalInputFile - Hadoop FS 미사용)
 	implementation 'org.apache.parquet:parquet-hadoop:1.14.1'
