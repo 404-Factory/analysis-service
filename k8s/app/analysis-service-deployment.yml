@@ -15,6 +15,7 @@ spec:
       labels:
         app: analysis-service
     spec:
+      serviceAccountName: analysis-sa
       containers:
         - name: analysis-service
           image: $IMAGE:$IMAGE_TAG
