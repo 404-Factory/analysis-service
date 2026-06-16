@@ -39,6 +39,10 @@ spec:
               value: "2"
             - name: SERVER_PORT
               value: "8080"
+            - name: MANAGEMENT_SERVICE_URL
+              value: "http://management-service.management.svc.cluster.local:8086"
+            - name: ANOMALY_SERVICE_URL
+              value: "http://anomaly-service.anomaly.svc.cluster.local:8083"
           resources:
             limits:
               memory: "512Mi"
