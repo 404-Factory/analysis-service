@@ -47,4 +47,4 @@ services:
   management-service:
     url: ${MANAGEMENT_SERVICE_URL:http://localhost:8086}
   anomaly-service:
-    url: ${ANOMALY_SERVICE_URL:http://localhost:8085}
+    url: ${ANOMALY_SERVICE_URL:http://localhost:8083}
