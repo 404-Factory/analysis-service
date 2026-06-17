@@ -1,0 +1,51 @@
+name: CI/CD Test
+
+on:
+  # Manual trigger: needed to (re)deploy manifest-only changes, since k8s/** is
+  # path-ignored below and therefore never auto-triggers build+deploy.
+  workflow_dispatch:
+  push:
+    branches: [feat/ci]
+    paths-ignore:
+      - '**.md'
+  pull_request:
+    branches: [feat/ci]
+    paths-ignore:
+      - '**.md'
+
+jobs:
+  build:
+    uses: 404-Factory/.github/.github/workflows/reusable-build.yml@dev
+    permissions:
+      contents: read
+      packages: write
+    with:
+      use-ecr: true
+      aws-region: ap-northeast-2
+      ecr-registry: ${{ vars.ECR_REGISTRY }}
+      platforms: ${{ vars.PLATFORM }}   # 레포/조직 Variables에서 관리 (예: linux/arm64)
+      java-version: "17"
+      pre-build-command: "./gradlew build -x test --no-daemon"
+      push-on-ref: refs/heads/feat/ci
+    secrets:
+      aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      gpr-token: ${{ secrets.GPR_TOKEN }}
+
+  deploy:
+    needs: build
+    if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/feat/ci'
+    uses: 404-Factory/.github/.github/workflows/reusable-deploy.yml@dev
+    permissions:
+      contents: read
+    with:
+      eks-cluster-name: sigma-eks-cluster
+      deploy-environment: production
+      aws-region: ap-northeast-2
+      image: ${{ needs.build.outputs.image }}
+      image-tag: ${{ needs.build.outputs.tag }}
+      manifest-dir: k8s/app
+      namespace: analysis
+    secrets:
+      aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}

@@ -1,6 +1,7 @@
 plugins {
     id "com.factory.spring-application-conventions"
 	id "com.factory.maven-consumer-conventions"
+	id "jacoco"
 }
 
 version = '1.0.0'
@@ -11,9 +12,10 @@ repositories {
 
 dependencies {
 	// common modules
-	implementation "com.factory.common:contract:1.0.1"
-	implementation "com.factory.common:outbox-jpa:1.0.1"
-	implementation "com.factory.common:inbox-jpa:1.0.1"
+	implementation "com.factory.common:contract:1.1.0"
+	implementation "com.factory.common:kafka:1.1.0"
+	implementation "com.factory.common:outbox-jpa:1.1.0"
+	implementation "com.factory.common:inbox-jpa:1.1.0"
 
 	// Spring Web
 	implementation "org.springframework.boot:spring-boot-starter-web"
@@ -34,6 +36,8 @@ dependencies {
 	// AWS SDK v2 - S3
 	implementation platform('software.amazon.awssdk:bom:2.25.60')
 	implementation 'software.amazon.awssdk:s3'
+	// IRSA(WebIdentityToken)로 자격증명 받으려면 STS 모듈이 클래스패스에 필요
+	implementation 'software.amazon.awssdk:sts'
 
 	// Parquet reading (LocalInputFile - Hadoop FS 미사용)
 	implementation 'org.apache.parquet:parquet-hadoop:1.14.1'
@@ -69,10 +73,33 @@ dependencies {
 	// Test
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+	testImplementation 'com.h2database:h2'
 }
 
 tasks.named('test', Test) {
     useJUnitPlatform()
+    // 앱이 런타임에 JVM 기본 TZ를 UTC로 바꾸므로, 테스트 JVM도 처음부터 UTC로 띄워
+    // LocalDate <-> JDBC(H2) 날짜 변환의 타임존 오프바이원을 방지한다.
+    systemProperty 'user.timezone', 'UTC'
+    finalizedBy jacocoTestReport
+}
+
+jacocoTestReport {
+    dependsOn test
+    reports {
+        xml.required = true
+        html.required = true
+    }
+}
+
+jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            limit {
+                minimum = 0.80
+            }
+        }
+    }
 }
 
 tasks.named('bootJar') {
